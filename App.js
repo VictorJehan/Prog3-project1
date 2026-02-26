@@ -1,275 +1,295 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import {
-  View,
+  StyleSheet,
   Text,
+  View,
   TextInput,
+  ScrollView,
   TouchableOpacity,
-  FlatList,
-  StyleSheet
-} from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+} from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  const [contacts, setContacts] = useState([]);
+/* ================= LOGIN ================= */
+
+function Login({ navigation }) {
+  const [login, setLogin] = useState('');
+  const [senha, setSenha] = useState('');
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login">
-          {(props) => <LoginScreen {...props} />}
-        </Stack.Screen>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.titulo}>LOGIN</Text>
 
-        <Stack.Screen name="CadastroUsuario">
-          {(props) => <RegisterScreen {...props} />}
-        </Stack.Screen>
+      <TextInput
+        style={styles.input}
+        placeholder="login"
+        value={login}
+        onChangeText={setLogin}
+      />
 
-        <Stack.Screen name="ListaContatos">
-          {(props) => (
-            <ContactListScreen
-              {...props}
-              contacts={contacts}
-              setContacts={setContacts}
-            />
-          )}
-        </Stack.Screen>
+      <TextInput
+        style={styles.input}
+        placeholder="senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+      />
 
-        <Stack.Screen name="NovoContato">
-          {(props) => (
-            <CreateContactScreen
-              {...props}
-              contacts={contacts}
-              setContacts={setContacts}
-            />
-          )}
-        </Stack.Screen>
+      <TouchableOpacity
+        style={styles.botaoAzul}
+        onPress={() => navigation.navigate('Lista')}
+      >
+        <Text style={styles.textoBotao}>Entrar</Text>
+      </TouchableOpacity>
 
-        <Stack.Screen name="EditarContato">
-          {(props) => (
-            <EditContactScreen
-              {...props}
-              contacts={contacts}
-              setContacts={setContacts}
-            />
-          )}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
+      <TouchableOpacity
+        style={styles.botaoVermelho}
+        onPress={() => navigation.navigate('CadastroUsuario')}
+      >
+        <Text style={styles.textoBotao}>Cadastre-se</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
-/* ---------------- LOGIN ---------------- */
+/* ================= LISTA ================= */
 
-function LoginScreen({ navigation }) {
+function Lista({ navigation }) {
+  const [contatos, setContatos] = useState([
+    { nome: 'Marcos Andrade', telefone: '81 988553424', email: 'marcos@gmail.com' },
+    { nome: 'Patrícia Tavares', telefone: '81 998765332', email: 'patricia@gmail.com' },
+    { nome: 'Rodrigo Antunes', telefone: '81 987765525', email: 'rodrigo@gmail.com' },
+  ]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>L O G I N</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>LISTA DE CONTATOS</Text>
 
-      <TextInput placeholder="login" style={styles.input} />
-      <TextInput placeholder="senha" secureTextEntry style={styles.input} />
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('CadastroContato', { setContatos, contatos })
+          }
+        >
+          <FontAwesome name="plus" size={22} color="#fff" />
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={() => navigation.navigate("ListaContatos")}
-      >
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("CadastroUsuario")}>
-        <Text style={styles.link}>Cadastre-se</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-/* ---------------- CADASTRO USUÁRIO ---------------- */
-
-function RegisterScreen({ navigation }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>C A D A S T R O  D E  U S U Á R I O S</Text>
-
-      <TextInput placeholder="nome" style={styles.input} />
-      <TextInput placeholder="cpf" style={styles.input} />
-      <TextInput placeholder="email" style={styles.input} />
-      <TextInput placeholder="senha" secureTextEntry style={styles.input} />
-
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.buttonText}>Salvar</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-/* ---------------- LISTA ---------------- */
-
-function ContactListScreen({ navigation, contacts }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>L I S T A  D E  C O N T A T O S</Text>
-
-      <TouchableOpacity
-        style={styles.plusButton}
-        onPress={() => navigation.navigate("NovoContato")}
-      >
-        <Text style={styles.plusText}>+</Text>
-      </TouchableOpacity>
-
-      <FlatList
-        data={contacts}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+      <ScrollView>
+        {contatos.map((item, index) => (
           <TouchableOpacity
-            style={styles.contactItem}
+            key={index}
+            style={styles.card}
             onPress={() =>
-              navigation.navigate("EditarContato", { id: item.id })
+              navigation.navigate('AlterarExcluir', {
+                contato: item,
+                index,
+                contatos,
+                setContatos,
+              })
             }
           >
-            <Text style={styles.contactName}>{item.nome}</Text>
+            <Text style={styles.nome}>{item.nome}</Text>
             <Text>{item.telefone}</Text>
           </TouchableOpacity>
-        )}
-      />
-    </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-/* ---------------- NOVO CONTATO ---------------- */
+/* ================= CADASTRO USUÁRIO ================= */
 
-function CreateContactScreen({ navigation, contacts, setContacts }) {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
+function CadastroUsuario({ navigation }) {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
 
-  function salvar() {
-    const novo = {
-      id: Date.now().toString(),
-      nome,
-      email,
-      telefone
-    };
-    setContacts([...contacts, novo]);
+      {/* HEADER IGUAL DA IMAGEM */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <FontAwesome name="arrow-left" size={22} color="#fff" />
+        </TouchableOpacity>
+
+        <Text style={styles.headerText}>Usuário</Text>
+
+        <View style={{ width: 22 }} />
+      </View>
+
+      {/* CONTEÚDO */}
+      <View style={styles.container}>
+        <TextInput style={styles.input} placeholder="nome" />
+        <TextInput style={styles.input} placeholder="cpf" />
+        <TextInput style={styles.input} placeholder="email" />
+        <TextInput style={styles.input} placeholder="senha" secureTextEntry />
+
+        <TouchableOpacity style={styles.botaoAzul}>
+          <Text style={styles.textoBotao}>Salvar</Text>
+        </TouchableOpacity>
+      </View>
+
+    </SafeAreaView>
+  );
+}
+
+/* ================= CADASTRO CONTATO ================= */
+
+function CadastroContato({ navigation, route }) {
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [telefone, setTelefone] = useState('');
+
+  const { contatos, setContatos } = route.params;
+
+  const salvar = () => {
+    const novo = { nome, email, telefone };
+    setContatos([...contatos, novo]);
     navigation.goBack();
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>C A D A S T R O  D E  C O N T A T O</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.titulo}>CADASTRO DE CONTATO</Text>
 
-      <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput placeholder="Telefone" value={telefone} onChangeText={setTelefone} style={styles.input} />
+      <TextInput style={styles.input} placeholder="Nome" onChangeText={setNome} />
+      <TextInput style={styles.input} placeholder="Email" onChangeText={setEmail} />
+      <TextInput style={styles.input} placeholder="Telefone" onChangeText={setTelefone} />
 
-      <TouchableOpacity style={styles.primaryButton} onPress={salvar}>
-        <Text style={styles.buttonText}>Salvar</Text>
+      <TouchableOpacity style={styles.botaoAzul} onPress={salvar}>
+        <Text style={styles.textoBotao}>Salvar</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
-/* ---------------- EDITAR CONTATO ---------------- */
+/* ================= ALTERAR / EXCLUIR ================= */
 
-function EditContactScreen({ route, navigation, contacts, setContacts }) {
-  const { id } = route.params;
-  const contato = contacts.find((c) => c.id === id);
+function AlterarExcluir({ navigation, route }) {
+  const { contato, index, contatos, setContatos } = route.params;
 
-  const [nome, setNome] = useState(contato?.nome || "");
-  const [email, setEmail] = useState(contato?.email || "");
-  const [telefone, setTelefone] = useState(contato?.telefone || "");
+  const [nome, setNome] = useState(contato.nome);
+  const [email, setEmail] = useState(contato.email);
+  const [telefone, setTelefone] = useState(contato.telefone);
 
-  function alterar() {
-    const atualizados = contacts.map((c) =>
-      c.id === id ? { ...c, nome, email, telefone } : c
-    );
-    setContacts(atualizados);
+  const alterar = () => {
+    const lista = [...contatos];
+    lista[index] = { nome, email, telefone };
+    setContatos(lista);
     navigation.goBack();
-  }
+  };
 
-  function excluir() {
-    const filtrados = contacts.filter((c) => c.id !== id);
-    setContacts(filtrados);
+  const excluir = () => {
+    const lista = contatos.filter((_, i) => i !== index);
+    setContatos(lista);
     navigation.goBack();
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        A L T E R A Ç Ã O / E X C L U S Ã O  D E  C O N T A T O S
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.titulo}>ALTERAÇÃO / EXCLUSÃO DE CONTATOS</Text>
 
-      <TextInput value={nome} onChangeText={setNome} style={styles.input} />
-      <TextInput value={email} onChangeText={setEmail} style={styles.input} />
-      <TextInput value={telefone} onChangeText={setTelefone} style={styles.input} />
+      <TextInput style={styles.input} value={nome} onChangeText={setNome} />
+      <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+      <TextInput style={styles.input} value={telefone} onChangeText={setTelefone} />
 
-      <TouchableOpacity style={styles.primaryButton} onPress={alterar}>
-        <Text style={styles.buttonText}>Alterar</Text>
+      <TouchableOpacity style={styles.botaoAzul} onPress={alterar}>
+        <Text style={styles.textoBotao}>Alterar</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={excluir}>
-        <Text style={styles.buttonText}>Excluir</Text>
+      <TouchableOpacity style={styles.botaoVermelho} onPress={excluir}>
+        <Text style={styles.textoBotao}>Excluir</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
-/* ---------------- ESTILOS ---------------- */
+/* ================= APP ================= */
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Lista" component={Lista} />
+          <Stack.Screen name="CadastroUsuario" component={CadastroUsuario} />
+          <Stack.Screen name="CadastroContato" component={CadastroContato} />
+          <Stack.Screen name="AlterarExcluir" component={AlterarExcluir} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
+  );
+}
+
+/* ================= ESTILOS ================= */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
-    backgroundColor: "#f1ce5b"
+    backgroundColor: '#f4e4b8',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  title: {
-    textAlign: "center",
-    fontSize: 18,
-    marginBottom: 30,
-    fontWeight: "bold"
+
+  titulo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
+
   input: {
+    width: 250,
+    height: 40,
     borderWidth: 1,
-    borderColor: "#000000",
+    marginBottom: 12,
+    padding: 10,
+    backgroundColor: '#fff',
+  },
+
+  botaoAzul: {
+    backgroundColor: '#3b82f6',
+    padding: 12,
+    width: 250,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  botaoVermelho: {
+    backgroundColor: '#b91c1c',
+    padding: 12,
+    width: 250,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  textoBotao: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
+  header: {
+    backgroundColor: '#3b82f6',
     padding: 15,
-    marginBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  primaryButton: {
-    backgroundColor: "#000",
-    padding: 12,
-    alignItems: "center",
-    marginBottom: 15
+
+  headerText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
-  deleteButton: {
-    backgroundColor: "red",
-    padding: 12,
-    alignItems: "center",
-    marginTop: 10
-  },
-  buttonText: {
-    color: "#ffffff",
-    fontWeight: "bold"
-  },
-  link: {
-    textAlign: "center",
-    marginTop: 10
-  },
-  plusButton: {
-    alignSelf: "center",
-    marginBottom: 20
-  },
-  plusText: {
-    fontSize: 30
-  },
-  contactItem: {
-    marginBottom: 15,
+
+  card: {
+    padding: 15,
     borderBottomWidth: 1,
-    paddingBottom: 5
   },
-  contactName: {
-    fontWeight: "bold"
-  }
+
+  nome: {
+    fontWeight: 'bold',
+  },
 });
