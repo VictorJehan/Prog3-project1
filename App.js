@@ -15,7 +15,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 const Stack = createNativeStackNavigator();
 
-/* ================= LOGIN ================= */
+
 
 function Login({ navigation }) {
   const [login, setLogin] = useState('');
@@ -57,7 +57,7 @@ function Login({ navigation }) {
   );
 }
 
-/* ================= LISTA ================= */
+
 
 function Lista({ navigation }) {
   const [contatos, setContatos] = useState([
@@ -103,7 +103,7 @@ function Lista({ navigation }) {
   );
 }
 
-/* ================= CADASTRO USUÁRIO ================= */
+
 
 function CadastroUsuario({ navigation }) {
   return (
@@ -136,7 +136,7 @@ function CadastroUsuario({ navigation }) {
   );
 }
 
-/* ================= CADASTRO CONTATO ================= */
+
 
 function CadastroContato({ navigation, route }) {
   const [nome, setNome] = useState('');
@@ -166,7 +166,7 @@ function CadastroContato({ navigation, route }) {
   );
 }
 
-/* ================= ALTERAR / EXCLUIR ================= */
+
 
 function AlterarExcluir({ navigation, route }) {
   const { contato, index, contatos, setContatos } = route.params;
@@ -207,7 +207,7 @@ function AlterarExcluir({ navigation, route }) {
   );
 }
 
-/* ================= APP ================= */
+
 
 export default function App() {
   return (
@@ -225,7 +225,7 @@ export default function App() {
   );
 }
 
-/* ================= ESTILOS ================= */
+
 
 const styles = StyleSheet.create({
   container: {
